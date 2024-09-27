@@ -3,7 +3,7 @@ title: "Stillbirth: A Patterned Medical Condition"
 subtitle: "A Comprehensive Study for Stillbirth"
 author: 
   - Xiaoguang He
-thanks: "A GitHub Repository containing all data, R code, and other files used in this investigation is located here: <https://github.com/BellHe-hub/Wow-Stillbirth-Pattern.git>"
+thanks: "A GitHub Repository containing all data, R code, and other files used in this investigation is located here: <https://github.com/BellHe-hub/PatternStillbirth.git>"
 date: 27 September 2024
 date-format: long
 abstract: "In this paper, stillbirth license statistics from 2010 to 2024, sourced from Open Data Toronto, are analyzed. The data is extracted, visualized, and observed through graphs. Most of the stillbirth license counts range between 0 and 200. However, extreme license counts are rare, and the trend peaks around the same period each year. Overall, the data appears stable and exhibits a clear pattern. The results provide insights into the trends of stillbirth licenses over time. This paper aims to enhance the audience's understanding and awareness of stillbirths. In the long run, the study could be expanded to explore excess stillbirth cases by analyzing common causes, and further research into prenatal care could be considered."
