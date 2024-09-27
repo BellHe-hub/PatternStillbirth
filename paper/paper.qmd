@@ -1,0 +1,261 @@
+---
+title: "Stillbirth: A Patterned Medical Condition"
+subtitle: "A Comprehensive Study for Stillbirth"
+author: 
+  - Xiaoguang He
+thanks: "A GitHub Repository containing all data, R code, and other files used in this investigation is located here: <https://github.com/BellHe-hub/Wow-Stillbirth-Pattern.git>"
+date: 27 September 2024
+date-format: long
+abstract: "In this paper, stillbirth license statistics from 2010 to 2024, sourced from Open Data Toronto, are analyzed. The data is extracted, visualized, and observed through graphs. Most of the stillbirth license counts range between 0 and 200. However, extreme license counts are rare, and the trend peaks around the same period each year. Overall, the data appears stable and exhibits a clear pattern. The results provide insights into the trends of stillbirth licenses over time. This paper aims to enhance the audience's understanding and awareness of stillbirths. In the long run, the study could be expanded to explore excess stillbirth cases by analyzing common causes, and further research into prenatal care could be considered."
+format: pdf
+number-sections: true
+bibliography: references.bib
+---
+
+```{r}
+#| echo: false
+#| warning: false
+#### Preamble ####
+
+# Purpose: Generates a paper titled "A Comprehensive Study in Stillbirth" in PDF format when rendered.
+# Author: Xiaoguang He
+# Date: September 23rd 2024
+# Contact: xiaoguang.he@mail.utoronto.ca
+# Pre-requisites: Run the files "01-download_data.R" and "02-data_cleaning.R".
+```
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+#| echo: false
+install.packages('tidyverse')
+install.packages('opendatatoronto')
+install.packages('knitr')
+library(tidyverse)
+library(opendatatoronto)
+library(knitr)
+```
+
+
+# Introduction
+
+Stillbirth is defined as the loss of life signs in a fetus prior to its complete extraction from the mother. Despite advances in antenatal care, the occurrence of stillbirths remains a challenge for countries at various levels of development. On a deeper level, stillbirth is closely related to abortion. In addition to its medical impact, stillbirth is also linked to government policies on birth restrictions. Understanding the trends and underlying factors associated with stillbirth is vital for developing effective interventions aimed at reducing its incidence, as mentioned by @smith2007stillbirth. Additionally, it helps provide a better framework for related political activities, according to @bukowski2014fetal.
+
+This paper seeks to explore the different aspects of stillbirth using statistics from @citeopendatatoronto with R coding @citeR to demonstrate that it follows a pattern. To achieve this, we analyze the number of stillbirths and their corresponding times to generate graphs that present typical features and deepen our understanding. The foundational framework is provided by @rohan.
+
+Using data provided by @citeopendatatoronto, stillbirth statistics are described in @sec-data-intro. By combining the raw data with the graphical results generated in @sec-results, we observe that the properties of stillbirth licenses are patterned. The peak in stillbirth license issuance typically occurs towards the end of each year (September, October), a statement supported by analyses in both @sec-results-counts and @sec-results-trends. The usual number of cases ranges from 0 to 200, as shown in @sec-results-frequency. With this information, we gain an essential understanding of stillbirth data and its patterns. In terms of structure, all visualizations and data descriptions can be found in @sec-data. Additional methodological information is provided in @sec-appendix.
+
+The rest of the paper is structured as follows: @sec-data discusses the raw data, the data cleaning process, and offers samples from both raw and analyzed datasets. A summary table of stillbirth license counts, our main variable, is also presented. @sec-results builds on the information from @sec-data by graphing various trends with the analyzed data. Each graph is accompanied by interpretation and observations to develop the final conclusions. @sec-discussion presents conclusions based on @sec-data and @sec-results, discussing the broader implications of this study and analyzing the dataset's limitations. @sec-appendix details additional sketches and the data cleaning methods used. Finally, the References section provides sources to support the reliability of the study.
+
+
+
+
+
+
+
+# Data {#sec-data}
+
+## Data intro {#sec-data-intro}
+The dataset used in this analysis is the only version of the "Stillbirth Registration Statistics" from Open Data Toronto [@citeopendatatoronto]. This dataset includes information about stillbirth registrations documented by Registry Services at the Etobicoke Civic Centre. The registration of stillbirths is entered into the Registry Services Tracking System (RSTS), from which aggregate statistical information is generated to create the dataset. The dataset resides in an Oracle database within the City's environment. It is created in compliance with the Vital Statistics Act, which is provincial legislation, and also supports the City's operational requirements and business functions.
+
+The parameters included in the dataset are: "Unique row identifier for Open Data database" (_id), which starts at 4177, indicating a unique identifier for each row; "Code of civic centre" (CIVIC_CENTRE), which represents the specific civic centre that reported the number of stillbirth licenses for different time periods; "Stillbirth Licenses" (STILLBIRTH_LICENSES), which indicates the number of stillbirths registered in the month by one of the civic centres; and "Time Period" (TIME_PERIOD), denoting the time that the stillbirth was registered [@citeopendatatoronto].
+
+This dataset is the only one with the main topic of "stillbirth," and due to its freshness and overall quality, it was selected to help us better understand stillbirths.
+
+The paper utilizes the R programming language [@citeR], along with the janitor [@citejanitor] and tidyverse [@citetidyverse] packages to simulate a dataset similar to the actual data. The opendatatoronto [@citeopendatatoronto] and tidyverse [@citetidyverse] packages are used to download the raw Toronto Public Health dataset. Finally, the tidyverse package [@citetidyverse] is used to clean the raw dataset and conduct tests on the cleaned dataset, referred to as "analysis_data."
+
+## Data Overview {#sec-data-overview}
+```{r}
+#| label: tbl-raw-data
+#| tbl-cap: sample of raw data
+#| echo: false
+raw_data <- read.csv('raw_data.csv')
+head(raw_data, 7) |>
+  kable(
+    col.names = c('Case ID', "Civic Centre", "#Stillbirth License", "Date"),
+    booktabs = TRUE
+  )
+```
+A sample of raw data is shown above (@tbl-raw-data), it is the first few rows extracted from the uncleaned plain data in "Stillbirth Registration Statistics" dataset from @citeopendatatoronto. The R code (@citeR) used are mainly 'tidyverse' (@citetidyverse) and 'knitr' (@citeknitr).
+
+```{r}
+#| label: tbl-analysis-data
+#| tbl-cap: sample of analysis data
+#| echo: false
+analysis_data <- read.csv('analysis_data.csv')
+head(analysis_data, 7) |>
+  kable(
+    col.names = c('Case ID', "#Stillbirth License", "Date"),
+    booktabs = TRUE
+  )
+```
+A glance of the dataset that will be used in the rest of this paper (@tbl-analysis-data) for results (@sec-results) is exhibited. Different from the raw data in @tbl-raw-data, the paramter "Civic Centre" is exluded, any NA values are detected and dropped, and the day section that says "-01" are removed from the time period as we only want the year and month. Methods mentioned above are achieved using R (@citeR), tidyverse(@citetidyverse), and codes are inspired by @tellingstorieswithdata.
+
+```{r}
+#| label: tbl-data-summary
+#| tbl-cap: summary of analysis data
+#| echo: false
+summary_stats <- analysis_data %>%
+  summarize(
+    Mean = mean(STILLBIRTH_LICENSES, na.rm = TRUE),
+    `Standard Deviation` = sd(STILLBIRTH_LICENSES, na.rm = TRUE),
+    Median = median(STILLBIRTH_LICENSES, na.rm = TRUE),
+    Minimum = min(STILLBIRTH_LICENSES, na.rm = TRUE),
+    Maximum = max(STILLBIRTH_LICENSES, na.rm = TRUE),
+    `1st Quartile` = quantile(STILLBIRTH_LICENSES, 0.25, na.rm = TRUE),
+    `3rd Quartile` = quantile(STILLBIRTH_LICENSES, 0.75, na.rm = TRUE),
+    Count = n(),
+    `Missing Values` = sum(is.na(STILLBIRTH_LICENSES))
+  )
+
+# Print the summary statistics as a table
+kable(summary_stats, caption = "Summary of Stillbirth Licenses")
+```
+@tbl-data-summary is a table of summary regarding the count of stillbirth lincenses, with a relatively large variance, and a mean less than 100 which collaborate with our statement of dataset stableness in @sec-results.
+
+
+## Data Measurement {#sec-data-measurement}
+Through reading related information for this data set from @citeopendatatoronto, the measurement of this data set is acknowledged. This dataset includes information about registration of stillbirths documented by Registry Services at the Etobicoke Civic Centre. Registration of stillbirths is entered into the Registry Services Tracking System (RSTS), from which aggregate statistical information is generated to create the dataset. The dataset is created in support of the Vital Statistics Act, which is Provincial legislation. The dataset also supports the City's operational requirements and business functions. The dataset resides in an Oracle database in the City's environment. (@citeopendatatoronto). The data is updated recently since it keeps track of the data until now. With all full marks on the aspects of usabilit, accessibility and completeness, this data set is fairly accountable.
+
+
+## Data Discussion {#sec-data-discussion}
+This data set is derived from @citeopendatatoronto. As the only data set about stillbirth that covers a long period, the set has a fair reliable. Although the set still remians flawed, as discussed more specifically in @sec-discussion.
+
+# Results {#sec-results}
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+#### Loading the Cleaned Dataset ####
+
+data <- read_csv("analysis_data.csv")
+```
+
+Loading the dataset using the R code [@citeR], and the `ggplot` package [@citeggplot2] is used to generate graphs. Code is selected from @tellingstorieswithdata.
+
+
+## Data Visualization 1 {#sec-results-counts}
+```{r}
+#| label: fig-count-time
+#| fig-cap: Stillbirth count base on time
+#| echo: false
+#| warning: false
+#| message: false
+
+
+# Load necessary libraries
+library(ggplot2)
+
+
+# Convert TIME_PERIOD to Date type
+data$TIME_PERIOD <- as.Date(paste0(data$TIME_PERIOD, "-01"))
+
+# Time Series Plot
+ggplot(data, aes(x = TIME_PERIOD, y = STILLBIRTH_LICENSES)) +
+  geom_line() +
+  labs(title = "Time Series of Stillbirth Licenses",
+       x = "Time Period",
+       y = "Number of Stillbirth Licenses") +
+  theme_minimal()
+
+```
+
+The time series graph of stillbirth licenses (@fig-count-time graphed with @citeggplot2) shows fluctuating counts between 2010 and 2025, with most values ranging between 0 and 200. The variance of stillbirth counts is notable between months which will be proved in later on graph, but no clear difference on a year base. A sharp spike occurs around 2023-2024, where the number weirdly exceeds 400, suggesting an unusual increase in stillbirths or changes in reporting practices. The counts drop down with less exaggerating data but slightly varies from years before the peak. Without a doubt, the peak around 2023-2024 stands out as a significant outlier, the rest is stable from a larger perspective. 
+
+\newpage
+
+## Data Visualization 2 {#sec-results-frequency}
+```{r}
+#| label: fig-occurence-count
+#| fig-cap: Frequency of stillbirth counts
+#| echo: false
+#| warning: false
+#| message: false
+
+# Histogram of stillbirth licenses
+ggplot(data, aes(x = STILLBIRTH_LICENSES)) +
+  geom_histogram(binwidth = 7, fill = "orange", color = "black") +
+  labs(title = "Distribution of Stillbirth Licenses",
+       x = "Number of Stillbirth Licenses",
+       y = "Frequency") +
+  theme_minimal()
+
+
+```
+
+The histogram @fig-occurence-count titled "Frequency of stillbirth-counts" created with @citeggplot2 displays the frequency of occurrences for different counts of stillbirth licenses. The x-axis represents the number of stillbirth licenses with unit of month, and the y-axis indicates the number of occurence. The majority of the data points are concentrated at the left side where the number of licenses is smaller, with most counts falling between 0 and 100 stillbirth licenses. The distribution has a right-skewed pattern, where the y parameter decreases as the x parameter  increases. There are a few instances of stillbirth license counts exceeding 200, and one significant outlier appears around 400 stillbirth licenses. Overall, the distribution suggests that higher counts of stillbirth licenses are uncommon, with most occurrences are lower number of stillbirth licenses, a relatively stable frequency.
+
+\newpage
+
+## Data Visualization 3 {#sec-results-trends}
+```{r, fig.width = 5, fig.height = 5}
+#| label: fig-trend-time
+#| fig-cap: Relationship between stillbirth trends and time
+#| echo: false
+#| warning: false
+#| message: false
+
+data$TIME_PERIOD <- as.Date(paste0(data$TIME_PERIOD, "-01"), format = "%Y-%m-%d")
+
+# Extract the year and numeric month from TIME_PERIOD
+data$Year <- format(data$TIME_PERIOD, "%Y")
+data$Month <- format(data$TIME_PERIOD, "%m")  # Numeric month
+
+# Create the plot
+ggplot(data, aes(x = as.numeric(Month), y = STILLBIRTH_LICENSES, color = Year, group = Year)) +
+  geom_line() +
+  labs(
+    title = "Monthly Trend of Stillbirth Licenses Over the Years",
+    x = "Month (Numeric)",
+    y = "Number of Stillbirth Licenses"
+  ) +
+  theme_minimal() +
+  scale_x_continuous(breaks = 1:12) +  # Ensure months are represented as 1 through 12
+  theme(axis.text.x = element_text(angle = 0))  # Keep axis labels horizontal
+
+```
+
+This graph above @fig-trend-time created by @citeggplot2 depicts the monthly trend of stillbirth licenses over the years from 2011 to 2024. The x-axis represents the months of the year, while the y-axis shows the number of stillbirth licenses issued. Each line corresponds to a specific year, as indicated on the right side of the graph. The year 2024 which is represented by the pink line shows a exaggerating spike in stillbirth licenses in March, exceeding 400 (which is an outlier mentioned before), followed by a sharp decline in subsequent months. Other years show relatively lower and constant trend, with relatively aggresive rate of change around the peak birth time around Semptember, October, February and March. Overall, exept for the abnormal increase in 2024, rest of the years have a constant period of peak and similar trends.
+
+
+
+
+
+
+
+
+
+
+# Discussion {#sec-discussion}
+As observed in @sec-results, stillbirth data tends to be regular and patterned. According to all three graphs, each of which records over 100 data points, stillbirth counts are relatively constant, with predictable peak times and a stable range. The conclusion that stillbirth is a patterned medical condition is supported by the analysis presented.
+
+As an informative paper, this work focuses on the key aspects of the stillbirth situation. However, further discussion could extend to how stillbirth correlates with other factors, whether political or medical. Additionally, we could explore the abnormal trends seen at the beginning of 2024. Although no specific reports have been published, we can apply our understanding of stillbirth to propose potential improvements, using graphs and analyses similar to those in @ellis2016systematic. One of the most significant components of stillbirth, Fetal Growth Restriction (FGR), is often defined as an estimated fetal weight less than the tenth percentile for gestational age, as determined by prenatal ultrasound evaluation, as noted by @kleinert2016stillbirth and @chew2024fetal. Understanding the nature of stillbirth through this dataset is crucial. By combining this dataset with others, our analysis could uncover potential ways to improve fetal care and influence policies related to obstetrics. Understanding the burden that stillbirth places on individuals and countries is an essential post-reading activity, with further information available in @souza2022purpose.
+
+Despite the high reliability and freshness of the data, as assessed by @citeopendatatoronto, the dataset has some limitations. For example, within the framework of Fetal Growth Restriction, causes of stillbirth are categorized, observed, and recorded (@kleinert2016stillbirth), such as maternal or placental causes. However, this dataset cannot fully support further usage and analysis due to the lack of detailed information on these causes.
+
+Future research should aim to incorporate data with a broader range and more specific features. This will provide deeper insights into ways to improve prenatal care.
+
+
+
+
+
+
+
+
+# Appendix {#sec-appendix}
+
+## Dataset and Graph Sketches {#sec-appendix-sketches}
+
+Sketches are used to approximate the intended dataset and all graphs created in this paper are available in the GitHub Repository.
+
+## Data Cleaning {#sec-appendix-cleaning}
+
+The data cleaning process includes extracting useful columns, rearrange the property of the date parameter, and clean out any NA values in the count section.
+
+
+
+# References
+
+
