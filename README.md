@@ -5,7 +5,7 @@ This GitHub Repository contains all files that are used to put together this pap
 ## File Structure
 The repo is structured as:
 
-`data/raw_data` contains the raw data as obtained from X. \N
+`data/raw_data` contains the raw data as obtained from X.
 `data/analysis_data` contains the cleaned dataset that was constructed.
 `other` contains relevant literature, details about LLM chat interactions, and sketches.
 `paper` contains the files used to generate the paper, including the Quarto document and reference bibliography file, as well as the PDF of the paper.
