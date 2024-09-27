@@ -2,7 +2,7 @@
 ##Description
 This GitHub Repository contains all files that are used to put together this paper Stillbirth: A Patterned Medical Condition.
 
-#File Structure
+## File Structure
 The repo is structured as:
 
 `data/raw_data` contains the raw data as obtained from X.
@@ -12,6 +12,6 @@ The repo is structured as:
 `scripts` contains the R scripts used to simulate, download and clean data.
 
 
-#Statement on LLM usage
+## Statement on LLM usage
 
 Some codes related to citations and data cleaning is written under the help of ChatGPT 4o, specific chat contents and history can be found in usage.txt file.
